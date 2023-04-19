@@ -1,0 +1,59 @@
+# Title: Convert a string to uprecase
+# Filename: StringToUppercase.asm
+# Author: Mario Cerulo
+# Date: 18/04/2023
+# Description: Converts a given string to uppercase
+# Input: A string of ascii characters
+# Output: An uppercase string of ascii characters
+
+##################################### Data Segment #####################################
+.data 
+input_prompt: .asciz "Inserisci una stringa: "
+output_prompt: .asciz "La stringa risultante è: "
+string: .space 31 				# 30 chars + the null char
+
+##################################### Code Segment #####################################
+.text
+.global main
+
+main:
+	# Ask for a string
+	li 		a7, 4
+	la 		a0, input_prompt
+	ecall
+
+	# Get the string
+	li 		a7, 8
+	la 		a0, string
+	li 		a1, 31
+	ecall
+
+	la 		t0, string 			# Load the address of the string in t0
+	li 		t1, 'a'
+	li 		t2, 'z'
+
+loop:
+	lbu 	t3, 0(t0) 			# Load a char in t3
+	beqz 	t3, exit_loop 		# If the char is the null character exit the loop
+	blt 	t3, t1, no_change 	# If the char is lower than 'a' don't change it
+	bgt 	t3, t2, no_change 	# If the char is higher than 'z' dont change it
+	addi 	t3, t3, -32 		# Convert to uppercase
+	sb 		t3, (t0) 			# Save the result to the string
+
+no_change:
+	addi 	t0, t0, 1 			# Increment the pointer
+	j 		loop 				# jump to the loop
+
+exit_loop:
+	# Print the output prompt
+	li 		a7, 4
+	la 		a0, output_prompt
+	ecall
+
+	# Print the string
+	la 		a0, string
+	ecall
+	
+	# Exit 
+	li 		a7, 10
+	ecall
